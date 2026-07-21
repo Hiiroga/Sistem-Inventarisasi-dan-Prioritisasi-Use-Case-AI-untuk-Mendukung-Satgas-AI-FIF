@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Kategori;
 use App\Models\UseCase;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class UserDashboardController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $userId = auth()->id();
 
@@ -23,14 +25,14 @@ class UserDashboardController extends Controller
         return view('user.dashboard', compact('myUseCases', 'total', 'perStatus'));
     }
 
-    public function create()
+    public function create(): View
     {
         $kategoris = Kategori::orderBy('nama_kategori')->get();
 
         return view('user.create', compact('kategoris'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'nama_use_case' => 'required|string|max:150',
@@ -49,7 +51,7 @@ class UserDashboardController extends Controller
 
         $last = UseCase::orderByDesc('id')->first();
         $number = $last ? ((int) preg_replace('/\D/', '', $last->kode)) + 1 : 1;
-        $validated['kode'] = 'UC'.str_pad($number, 3, '0', STR_PAD_LEFT);
+        $validated['kode'] = 'UC'.str_pad((string) $number, 3, '0', STR_PAD_LEFT);
 
         UseCase::create($validated);
 
@@ -57,7 +59,7 @@ class UserDashboardController extends Controller
             ->with('success', 'Usulan use case berhasil dikirim! Menunggu penilaian dari Satgas AI.');
     }
 
-    public function edit(UseCase $useCase)
+    public function edit(UseCase $useCase): View
     {
         $this->ensureEditableByCurrentUser($useCase);
 
@@ -66,7 +68,7 @@ class UserDashboardController extends Controller
         return view('user.create', compact('useCase', 'kategoris'));
     }
 
-    public function update(Request $request, UseCase $useCase)
+    public function update(Request $request, UseCase $useCase): RedirectResponse
     {
         $this->ensureEditableByCurrentUser($useCase);
 

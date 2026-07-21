@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 
 class PortalLoginController extends Controller
 {
-    public function show()
+    public function show(): View
     {
         return view('auth.portal-login');
     }
 
-    public function login(Request $request)
+    public function login(Request $request): RedirectResponse
     {
         $request->validate([
             'login_as' => 'required|in:admin,user',
@@ -57,7 +59,7 @@ class PortalLoginController extends Controller
         return redirect()->route($user->isAdmin() ? 'dashboard.usecase' : 'user.dashboard');
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
 

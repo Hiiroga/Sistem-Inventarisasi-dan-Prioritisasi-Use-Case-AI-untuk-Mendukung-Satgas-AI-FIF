@@ -3,7 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property-read Kategori|null $kategori
+ * @property-read PenilaianPrioritas|null $penilaianPrioritas
+ * @property-read RisikoEtikaDetail|null $risikoEtikaDetail
+ */
 class UseCase extends Model
 {
     protected $table = 'use_cases';
@@ -14,27 +22,32 @@ class UseCase extends Model
         'kategori_id', 'teknologi_ai', 'status',
     ];
 
-    public function kategori()
+    /** @return BelongsTo<Kategori, $this> */
+    public function kategori(): BelongsTo
     {
         return $this->belongsTo(Kategori::class, 'kategori_id');
     }
 
-    public function penilaianPrioritas()
+    /** @return HasOne<PenilaianPrioritas, $this> */
+    public function penilaianPrioritas(): HasOne
     {
         return $this->hasOne(PenilaianPrioritas::class, 'use_case_id');
     }
 
-    public function risikoEtikaDetail()
+    /** @return HasOne<RisikoEtikaDetail, $this> */
+    public function risikoEtikaDetail(): HasOne
     {
         return $this->hasOne(RisikoEtikaDetail::class, 'use_case_id');
     }
 
-    public function user()
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function statusHistories()
+    /** @return HasMany<UseCaseStatusHistory, $this> */
+    public function statusHistories(): HasMany
     {
         return $this->hasMany(UseCaseStatusHistory::class)->latest();
     }

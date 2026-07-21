@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\UseCase;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -12,13 +13,18 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
+/**
+ * @implements WithMapping<UseCase>
+ */
 class UseCaseExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
 {
-    public function collection()
+    /** @return Collection<int, UseCase> */
+    public function collection(): Collection
     {
         return UseCase::with(['kategori', 'penilaianPrioritas'])->get();
     }
 
+    /** @return array<int, string> */
     public function headings(): array
     {
         return [
@@ -31,7 +37,8 @@ class UseCaseExport implements FromCollection, ShouldAutoSize, WithHeadings, Wit
         ];
     }
 
-    public function map($useCase): array
+    /** @return array<int, mixed> */
+    public function map(mixed $useCase): array
     {
         $p = $useCase->penilaianPrioritas;
 
@@ -62,7 +69,8 @@ class UseCaseExport implements FromCollection, ShouldAutoSize, WithHeadings, Wit
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    /** @return array<int|string, mixed> */
+    public function styles(Worksheet $sheet): array
     {
         $sheet->getStyle('A1:W1')->getFont()->setBold(true);
         $sheet->getStyle('A1:W1')->getFill()

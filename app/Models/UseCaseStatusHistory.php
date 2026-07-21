@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UseCaseStatusHistory extends Model
 {
@@ -10,12 +11,14 @@ class UseCaseStatusHistory extends Model
         'use_case_id', 'changed_by', 'status_sebelumnya', 'status_baru', 'catatan',
     ];
 
-    public function useCase()
+    /** @return BelongsTo<UseCase, $this> */
+    public function useCase(): BelongsTo
     {
         return $this->belongsTo(UseCase::class);
     }
 
-    public function changedBy()
+    /** @return BelongsTo<User, $this> */
+    public function changedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'changed_by');
     }

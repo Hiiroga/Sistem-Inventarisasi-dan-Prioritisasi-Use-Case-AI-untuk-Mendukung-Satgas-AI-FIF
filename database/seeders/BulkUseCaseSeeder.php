@@ -55,7 +55,7 @@ class BulkUseCaseSeeder extends Seeder
             $number = $lastId ? ((int) preg_replace('/\D/', '', $lastId->kode)) + 1 : 1;
 
             $useCase = UseCase::create([
-                'kode' => 'UC'.str_pad($number, 3, '0', STR_PAD_LEFT),
+                'kode' => 'UC'.str_pad((string) $number, 3, '0', STR_PAD_LEFT),
                 'nama_use_case' => $faker->randomElement($namaUseCase).' '.$faker->randomElement(['v2', 'Kampus', 'Digital', '2026', 'Terpadu', '']),
                 'deskripsi' => $faker->sentence(15),
                 'latar_belakang_masalah' => $faker->sentence(12),

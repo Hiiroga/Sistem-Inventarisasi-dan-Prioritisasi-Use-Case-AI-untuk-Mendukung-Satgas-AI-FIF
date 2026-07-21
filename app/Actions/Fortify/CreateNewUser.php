@@ -25,7 +25,7 @@ class CreateNewUser implements CreatesNewUsers
                 ...$this->emailRules(),
                 function ($attribute, $value, $fail) {
                     $domainDiizinkan = ['student.telkomuniversity.ac.id', 'telkomuniversity.ac.id'];
-                    $domainEmail = strtolower(substr(strrchr($value, '@'), 1));
+                    $domainEmail = strtolower((string) substr((string) strrchr($value, '@'), 1));
 
                     if (! in_array($domainEmail, $domainDiizinkan)) {
                         $fail('Pendaftaran hanya untuk email kampus Telkom University (@student.telkomuniversity.ac.id atau @telkomuniversity.ac.id).');

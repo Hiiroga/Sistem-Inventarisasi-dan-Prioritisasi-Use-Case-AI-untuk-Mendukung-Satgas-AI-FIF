@@ -52,7 +52,7 @@ class UserDummyUseCaseSeeder extends Seeder
 
             $useCase = UseCase::create([
                 'user_id' => $user->id,
-                'kode' => 'UC'.str_pad($number, 3, '0', STR_PAD_LEFT),
+                'kode' => 'UC'.str_pad((string) $number, 3, '0', STR_PAD_LEFT),
                 'nama_use_case' => $item['nama_use_case'],
                 'deskripsi' => $item['deskripsi'],
                 'latar_belakang_masalah' => 'Berdasarkan pengamatan langsung di lingkungan kampus.',

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RisikoEtikaDetail extends Model
 {
@@ -21,7 +22,8 @@ class RisikoEtikaDetail extends Model
         'perlu_persetujuan_pengguna' => 'boolean',
     ];
 
-    public function useCase()
+    /** @return BelongsTo<UseCase, $this> */
+    public function useCase(): BelongsTo
     {
         return $this->belongsTo(UseCase::class, 'use_case_id');
     }

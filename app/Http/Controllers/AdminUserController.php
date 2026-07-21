@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class AdminUserController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $usersQuery = User::where('role', 'user')->latest();
         $adminsQuery = User::where('role', 'admin')->latest();
@@ -29,7 +31,7 @@ class AdminUserController extends Controller
         ]);
     }
 
-    public function promote(User $user)
+    public function promote(User $user): RedirectResponse
     {
         if ($user->isAdmin()) {
             return back()->with('error', 'Akun ini sudah menjadi Admin.');
@@ -41,7 +43,7 @@ class AdminUserController extends Controller
             ->with('success', $user->name.' berhasil diangkat menjadi Admin.');
     }
 
-    public function demote(User $admin)
+    public function demote(User $admin): RedirectResponse
     {
         abort_unless($admin->isAdmin(), 404);
 
@@ -59,7 +61,7 @@ class AdminUserController extends Controller
             ->with('success', 'Status Admin berhasil dicabut.');
     }
 
-    public function destroyUser(User $user)
+    public function destroyUser(User $user): RedirectResponse
     {
         if ($user->is(auth()->user()) || $user->isAdmin()) {
             return back()->with('error', 'Akun administrator aktif tidak dapat dihapus dari halaman ini.');

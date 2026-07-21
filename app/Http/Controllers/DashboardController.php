@@ -5,18 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Kategori;
 use App\Models\PenilaianPrioritas;
 use App\Models\UseCase;
+use Illuminate\Contracts\View\View;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $totalUseCase = UseCase::count();
 
         $rataDampak = round(
-            PenilaianPrioritas::whereNotNull('dampak')->avg('dampak'), 1
+            (float) PenilaianPrioritas::whereNotNull('dampak')->avg('dampak'), 1
         );
         $rataRisiko = round(
-            PenilaianPrioritas::whereNotNull('risiko_etika_skor')->avg('risiko_etika_skor'), 1
+            (float) PenilaianPrioritas::whereNotNull('risiko_etika_skor')->avg('risiko_etika_skor'), 1
         );
 
         // Data untuk bar chart: jumlah use case per kategori

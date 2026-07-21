@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\PriorityScoreCalculator;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PenilaianPrioritas extends Model
 {
@@ -17,14 +18,15 @@ class PenilaianPrioritas extends Model
         'skor_prioritas', 'level_prioritas',
     ];
 
-    public function useCase()
+    /** @return BelongsTo<UseCase, $this> */
+    public function useCase(): BelongsTo
     {
         return $this->belongsTo(UseCase::class, 'use_case_id');
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
-        static::saving(function (PenilaianPrioritas $item) {
+        static::saving(function (PenilaianPrioritas $item): void {
             if (
                 $item->dampak !== null &&
                 $item->kelayakan !== null &&

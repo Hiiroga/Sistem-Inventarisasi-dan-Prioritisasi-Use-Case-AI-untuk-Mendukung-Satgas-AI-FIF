@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Exports\UseCaseExport;
 use App\Models\Kategori;
 use App\Models\UseCase;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class UseCaseController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $query = UseCase::with(['kategori', 'penilaianPrioritas']);
 
@@ -38,14 +43,14 @@ class UseCaseController extends Controller
         return view('use-cases.index', compact('useCases', 'kategoris'));
     }
 
-    public function create()
+    public function create(): View
     {
         $kategoris = Kategori::orderBy('nama_kategori')->get();
 
         return view('use-cases.create', compact('kategoris'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'nama_use_case' => 'required|string|max:150',
@@ -68,14 +73,14 @@ class UseCaseController extends Controller
             ->with('success', 'Use case berhasil ditambahkan.');
     }
 
-    public function show(UseCase $useCase)
+    public function show(UseCase $useCase): View
     {
         $useCase->load(['kategori', 'penilaianPrioritas', 'risikoEtikaDetail', 'statusHistories.changedBy']);
 
         return view('use-cases.show', compact('useCase'));
     }
 
-    public function edit(UseCase $useCase)
+    public function edit(UseCase $useCase): View
     {
         $kategoris = Kategori::orderBy('nama_kategori')->get();
         $useCase->load(['penilaianPrioritas', 'risikoEtikaDetail']);
@@ -83,7 +88,7 @@ class UseCaseController extends Controller
         return view('use-cases.edit', compact('useCase', 'kategoris'));
     }
 
-    public function update(Request $request, UseCase $useCase)
+    public function update(Request $request, UseCase $useCase): RedirectResponse
     {
         $validated = $request->validate([
             'nama_use_case' => 'required|string|max:150',
@@ -118,7 +123,7 @@ class UseCaseController extends Controller
             'rekomendasi_mitigasi' => 'nullable|string|max:5000',
         ]);
 
-        $useCase->update(collect($validated)->except([
+        $useCase->update(Arr::except($validated, [
             'dampak', 'kelayakan', 'ketersediaan_data', 'kesiapan_sdm',
             'kesiapan_infrastruktur', 'urgensi', 'risiko_etika_skor',
             'kompleksitas_teknis', 'estimasi_waktu', 'estimasi_biaya',
@@ -126,18 +131,18 @@ class UseCaseController extends Controller
             'risiko_privasi', 'risiko_bias', 'risiko_ketergantungan_ai',
             'risiko_kesalahan_output', 'perlu_validasi_manusia',
             'perlu_persetujuan_pengguna', 'rekomendasi_mitigasi',
-        ])->all());
+        ]));
 
         // Update atau buat penilaian prioritas kalau field skor dikirim
         if ($request->filled('dampak')) {
             $useCase->penilaianPrioritas()->updateOrCreate(
                 ['use_case_id' => $useCase->id],
-                collect($validated)->only([
+                Arr::only($validated, [
                     'dampak', 'kelayakan', 'ketersediaan_data',
                     'kesiapan_sdm', 'kesiapan_infrastruktur', 'urgensi',
                     'risiko_etika_skor', 'kompleksitas_teknis',
                     'estimasi_waktu', 'estimasi_biaya',
-                ])->all()
+                ])
             );
         }
 
@@ -162,7 +167,7 @@ class UseCaseController extends Controller
             ->with('success', 'Use case berhasil diperbarui.');
     }
 
-    public function destroy(UseCase $useCase)
+    public function destroy(UseCase $useCase): RedirectResponse
     {
         $useCase->delete();
 
@@ -170,7 +175,7 @@ class UseCaseController extends Controller
             ->with('success', 'Use case berhasil dihapus.');
     }
 
-    public function analisisOtomatis(UseCase $useCase)
+    public function analisisOtomatis(UseCase $useCase): JsonResponse
     {
         $text = strtolower(
             $useCase->nama_use_case.' '.$useCase->deskripsi.' '.
@@ -178,7 +183,8 @@ class UseCaseController extends Controller
             $useCase->teknologi_ai
         );
 
-        $hitung = function (array $tinggi, array $rendah, int $dasar = 3) use ($text) {
+        /** @param array<int, string> $tinggi @param array<int, string> $rendah */
+        $hitung = function (array $tinggi, array $rendah, int $dasar = 3) use ($text): int {
             $skor = $dasar
                 + collect($tinggi)->filter(fn ($k) => str_contains($text, $k))->count()
                 - collect($rendah)->filter(fn ($k) => str_contains($text, $k))->count();
@@ -203,10 +209,10 @@ class UseCaseController extends Controller
         $last = UseCase::orderByDesc('id')->first();
         $number = $last ? ((int) substr($last->kode, 2)) + 1 : 1;
 
-        return 'UC'.str_pad($number, 3, '0', STR_PAD_LEFT);
+        return 'UC'.str_pad((string) $number, 3, '0', STR_PAD_LEFT);
     }
 
-    public function export()
+    public function export(): BinaryFileResponse
     {
         return Excel::download(new UseCaseExport, 'data-use-case-ai-'.now()->format('Y-m-d').'.xlsx');
     }
