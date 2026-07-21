@@ -3,11 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Kategori;
-use App\Models\UseCase;
 use App\Models\PenilaianPrioritas;
 use App\Models\RisikoEtikaDetail;
-use Illuminate\Database\Seeder;
+use App\Models\UseCase;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
 
 class BulkUseCaseSeeder extends Seeder
 {
@@ -55,12 +55,12 @@ class BulkUseCaseSeeder extends Seeder
             $number = $lastId ? ((int) preg_replace('/\D/', '', $lastId->kode)) + 1 : 1;
 
             $useCase = UseCase::create([
-                'kode' => 'UC' . str_pad($number, 3, '0', STR_PAD_LEFT),
-                'nama_use_case' => $faker->randomElement($namaUseCase) . ' ' . $faker->randomElement(['v2', 'Kampus', 'Digital', '2026', 'Terpadu', '']),
+                'kode' => 'UC'.str_pad($number, 3, '0', STR_PAD_LEFT),
+                'nama_use_case' => $faker->randomElement($namaUseCase).' '.$faker->randomElement(['v2', 'Kampus', 'Digital', '2026', 'Terpadu', '']),
                 'deskripsi' => $faker->sentence(15),
                 'latar_belakang_masalah' => $faker->sentence(12),
                 'tujuan_use_case' => $faker->sentence(10),
-                'pengusul' => $faker->randomElement(['Dosen', 'Mahasiswa', 'Tendik', 'Satgas AI']) . ' ' . $faker->firstName(),
+                'pengusul' => $faker->randomElement(['Dosen', 'Mahasiswa', 'Tendik', 'Satgas AI']).' '.$faker->firstName(),
                 'unit_terkait' => $faker->randomElement($unitList),
                 'target_pengguna' => $faker->randomElement(['Mahasiswa', 'Dosen', 'Tendik', 'Pimpinan Fakultas']),
                 'kategori_id' => $kategori->id,

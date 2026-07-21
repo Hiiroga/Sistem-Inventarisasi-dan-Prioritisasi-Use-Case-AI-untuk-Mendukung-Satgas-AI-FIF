@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Satgas AI Telkom University - Manajemen Use Case')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -32,6 +33,38 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen antialiased" x-data="{ sidebarOpen: false }" x-cloak>
 
+@php
+    $currentUser = auth()->user();
+    $isAdminGuard = $currentUser?->isAdmin() ?? false;
+
+    $notifikasi = collect();
+    if ($currentUser) {
+        if ($isAdminGuard) {
+            $notifikasi = \App\Models\UseCase::with('kategori')
+                ->latest()
+                ->take(6)
+                ->get()
+                ->map(fn($uc) => [
+                    'judul' => 'Usulan baru: ' . $uc->nama_use_case,
+                    'sub' => 'Diusulkan oleh ' . $uc->pengusul,
+                    'waktu' => $uc->created_at,
+                ]);
+        } else {
+            $notifikasi = \App\Models\UseCase::with('penilaianPrioritas')
+                ->where('user_id', $currentUser->id)
+                ->whereHas('penilaianPrioritas')
+                ->latest('updated_at')
+                ->take(6)
+                ->get()
+                ->map(fn($uc) => [
+                    'judul' => 'Usulanmu telah dinilai: ' . $uc->nama_use_case,
+                    'sub' => 'Skor: ' . ($uc->penilaianPrioritas->skor_prioritas ?? '-') . ' (' . ($uc->penilaianPrioritas->level_prioritas ?? '-') . ')',
+                    'waktu' => $uc->updated_at,
+                ]);
+        }
+    }
+@endphp
+
     <div class="flex min-h-screen">
         <!-- overlay mobile -->
         <div x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
@@ -52,6 +85,7 @@
             </div>
 
             <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                @if($isAdminGuard)
                 <p class="text-[10px] font-bold uppercase tracking-widest text-slate-300 px-3 mb-2">Main Menu</p>
                 <a href="{{ route('dashboard.usecase') }}"
                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('dashboard.usecase') ? 'bg-red-50 text-telkom-red' : 'text-slate-600 hover:bg-slate-50 hover:text-telkom-red' }}">
@@ -64,6 +98,10 @@
                 <a href="{{ route('use-cases.create') }}"
                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('use-cases.create') ? 'bg-red-50 text-telkom-red' : 'text-slate-600 hover:bg-slate-50 hover:text-telkom-red' }}">
                     <i data-lucide="plus-circle" class="h-4 w-4"></i> Tambah Use Case
+                </a>
+                <a href="{{ route('admin.users.index') }}"
+                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-telkom-red' : 'text-slate-600 hover:bg-slate-50 hover:text-telkom-red' }}">
+                    <i data-lucide="users" class="h-4 w-4"></i> Kelola User
                 </a>
 
                 <!-- Dekoratif saja, tidak terhubung database -->
@@ -80,6 +118,17 @@
                     <i data-lucide="file-text" class="h-4 w-4"></i> Dokumentasi Regulasi
                     <span class="ml-auto text-[9px] font-bold bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded">Sim</span>
                 </div>
+                @else
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-300 px-3 mb-2">Main Menu</p>
+                <a href="{{ route('user.dashboard') }}"
+                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('user.dashboard') ? 'bg-red-50 text-telkom-red' : 'text-slate-600 hover:bg-slate-50 hover:text-telkom-red' }}">
+                    <i data-lucide="layout-dashboard" class="h-4 w-4"></i> Dashboard Saya
+                </a>
+                <a href="{{ route('user.create') }}"
+                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('user.create') ? 'bg-red-50 text-telkom-red' : 'text-slate-600 hover:bg-slate-50 hover:text-telkom-red' }}">
+                    <i data-lucide="plus-circle" class="h-4 w-4"></i> Usulkan Use Case
+                </a>
+                @endif
             </nav>
 
             <div class="p-3">
@@ -99,22 +148,62 @@
                     <button @click="sidebarOpen=true" class="lg:hidden text-slate-600">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
-                    <div class="relative flex-1 max-w-md">
+                    <form action="{{ $isAdminGuard ? route('use-cases.index') : route('user.dashboard') }}" method="GET" class="relative flex-1 max-w-md">
                         <i data-lucide="search" class="absolute left-3 top-2.5 h-4 w-4 text-slate-400"></i>
-                        <input type="text" placeholder="Cari use case, teknologi, pengusul..."
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari use case, teknologi, pengusul..."
                                class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-telkom-red">
-                    </div>
+                    </form>
                     <div class="ml-auto flex items-center gap-3">
-                        <button class="relative text-slate-500 hover:text-telkom-red">
-                            <i data-lucide="bell" class="h-5 w-5"></i>
-                            <span class="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-telkom-red"></span>
-                        </button>
-                        <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
-                        <div class="text-right hidden sm:block leading-tight">
-                            <p class="text-sm font-bold text-slate-700">Satgas AI Manager</p>
-                            <p class="text-[11px] text-slate-400">Administrator Telkom U</p>
+                        <div class="relative" x-data="{ notifOpen: false }">
+                            <button @click="notifOpen = !notifOpen" class="relative text-slate-500 hover:text-telkom-red">
+                                <i data-lucide="bell" class="h-5 w-5"></i>
+                                @if($notifikasi->count() > 0)
+                                <span class="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-telkom-red"></span>
+                                @endif
+                            </button>
+                            <div x-show="notifOpen" @click.away="notifOpen = false" x-cloak
+                                 class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-lg border border-slate-100 py-2 z-50 max-h-96 overflow-y-auto">
+                                <div class="px-4 py-2.5 border-b border-slate-50">
+                                    <p class="text-xs font-bold text-slate-700">Notifikasi</p>
+                                </div>
+                                @forelse($notifikasi as $notif)
+                                <div class="px-4 py-3 border-b border-slate-50 last:border-0 hover:bg-slate-50">
+                                    <p class="text-xs font-semibold text-slate-700 leading-snug">{{ $notif['judul'] }}</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">{{ $notif['sub'] }}</p>
+                                    <p class="text-[10px] text-telkom-red font-bold mt-1">
+                                        {{ $notif['waktu']->translatedFormat('d M Y') }} • {{ $notif['waktu']->format('H:i') }}
+                                    </p>
+                                </div>
+                                @empty
+                                <div class="px-4 py-8 text-center text-slate-400 text-xs">Belum ada notifikasi.</div>
+                                @endforelse
+                            </div>
                         </div>
-                        <div class="h-9 w-9 rounded-full bg-red-50 border-2 border-red-100 text-telkom-red flex items-center justify-center text-xs font-bold shrink-0">SA</div>
+                        <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+                        @if($currentUser)
+                        <div class="text-right hidden sm:block leading-tight">
+                            <p class="text-sm font-bold text-slate-700">{{ $currentUser->name }}</p>
+                            <p class="text-[11px] text-slate-400">{{ $isAdminGuard ? 'Administrator' : 'Pengusul' }}</p>
+                        </div>
+                        <div class="relative" x-data="{ userMenuOpen: false }">
+                            <button @click="userMenuOpen = !userMenuOpen" class="h-9 w-9 rounded-full bg-red-50 border-2 border-red-100 text-telkom-red flex items-center justify-center text-xs font-bold shrink-0">
+                                {{ strtoupper(substr($currentUser->name, 0, 2)) }}
+                            </button>
+                            <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-cloak
+                                 class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-2 z-50">
+                                <div class="px-4 py-2 border-b border-slate-50">
+                                    <p class="text-xs font-bold text-slate-700">{{ $currentUser->name }}</p>
+                                    <p class="text-[11px] text-slate-400">{{ $currentUser->email }}</p>
+                                </div>
+                                <form method="POST" action="{{ route('portal.logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                        Log out
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </header>

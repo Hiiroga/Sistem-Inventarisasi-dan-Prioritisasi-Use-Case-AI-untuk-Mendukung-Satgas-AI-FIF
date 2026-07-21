@@ -52,6 +52,7 @@
                         <th class="text-left py-3 px-4">Nama Use Case</th>
                         <th class="text-left py-3 px-4">Kategori</th>
                         <th class="text-left py-3 px-4">Status</th>
+                        <th class="text-left py-3 px-4">Diusulkan</th>
                         <th class="text-left py-3 px-4">Skor</th>
                         <th class="text-left py-3 px-4">Level</th>
                         <th class="text-left py-3 px-4">Aksi</th>
@@ -67,6 +68,7 @@
                         <td class="py-3 px-4">
                             <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">{{ $useCase->status }}</span>
                         </td>
+                        <td class="py-3 px-4 text-slate-400 text-xs whitespace-nowrap">{{ $useCase->created_at->translatedFormat('d M Y') }}</td>
                         <td class="py-3 px-4 font-bold">{{ $useCase->penilaianPrioritas->skor_prioritas ?? '-' }}</td>
                         <td class="py-3 px-4">
                             @if($level)
@@ -100,7 +102,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="7" class="text-center text-slate-400 py-10">Belum ada data use case.</td></tr>
+                    <tr><td colspan="8" class="text-center text-slate-400 py-10">Belum ada data use case.</td></tr>
                     @endforelse
                 </tbody>
             </table>

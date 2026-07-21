@@ -4,14 +4,15 @@ namespace App\Exports;
 
 use App\Models\UseCase;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class UseCaseExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class UseCaseExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
 {
     public function collection()
     {
@@ -65,7 +66,7 @@ class UseCaseExport implements FromCollection, WithHeadings, WithMapping, WithSt
     {
         $sheet->getStyle('A1:W1')->getFont()->setBold(true);
         $sheet->getStyle('A1:W1')->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setRGB('2E5395');
         $sheet->getStyle('A1:W1')->getFont()->getColor()->setRGB('FFFFFF');
         $sheet->getStyle('A1:W1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
