@@ -125,6 +125,23 @@
                 <p class="text-xs text-slate-400 py-6">Belum dinilai. Klik Edit untuk mengisi skor prioritas.</p>
                 @endif
             </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs space-y-4">
+                <h3 class="font-extrabold text-slate-800 text-sm border-b border-slate-50 pb-2">Histori Status</h3>
+                @forelse($useCase->statusHistories as $history)
+                    <div class="border-l-2 border-red-200 pl-3 text-xs space-y-1">
+                        <p class="font-bold text-slate-700">
+                            {{ $history->status_sebelumnya ?: 'Baru' }} → {{ $history->status_baru }}
+                        </p>
+                        <p class="text-slate-500">{{ $history->catatan ?: 'Tanpa catatan.' }}</p>
+                        <p class="text-[10px] text-slate-400">
+                            {{ $history->changedBy?->name ?? 'Sistem' }} · {{ $history->created_at->translatedFormat('d M Y H:i') }}
+                        </p>
+                    </div>
+                @empty
+                    <p class="text-xs text-slate-400">Belum ada histori status.</p>
+                @endforelse
+            </div>
         </div>
     </div>
 </div>

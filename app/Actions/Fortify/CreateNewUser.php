@@ -21,6 +21,17 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
+            'email' => [
+                ...$this->emailRules(),
+                function ($attribute, $value, $fail) {
+                    $domainDiizinkan = ['student.telkomuniversity.ac.id', 'telkomuniversity.ac.id'];
+                    $domainEmail = strtolower((string) substr((string) strrchr($value, '@'), 1));
+
+                    if (! in_array($domainEmail, $domainDiizinkan)) {
+                        $fail('Pendaftaran hanya untuk email kampus Telkom University (@student.telkomuniversity.ac.id atau @telkomuniversity.ac.id).');
+                    }
+                },
+            ],
             'password' => $this->passwordRules(),
         ])->validate();
 

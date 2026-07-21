@@ -70,11 +70,19 @@
                 </select>
             </div>
         </div>
+
+        @isset($useCase)
+        <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Catatan Perubahan Status</label>
+            <textarea name="catatan_status" rows="2" placeholder="Wajib diisi bila status berubah agar keputusan dapat diaudit."
+                      class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm">{{ old('catatan_status') }}</textarea>
+        </div>
+        @endisset
     </div>
 
     @isset($useCase)
     @php $penilaian = $useCase->penilaianPrioritas; @endphp
-    <div class="space-y-5">
+    <div class="space-y-5" x-data="{ mode: 'manual' }">
         <div class="bg-gradient-to-tr from-telkom-red to-telkom-maroon text-white rounded-2xl p-5 shadow-lg space-y-3">
             <h3 class="text-xs uppercase font-extrabold tracking-widest text-red-100 flex items-center gap-1.5">
                 <i data-lucide="activity" class="h-4 w-4"></i> Penilaian Prioritas
@@ -89,6 +97,32 @@
             @endif
         </div>
 
+        <!-- Toggle Manual vs Otomatis -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+            <button type="button" @click="mode = 'manual'"
+                    :class="mode === 'manual' ? 'bg-white shadow text-telkom-red' : 'text-slate-500'"
+                    class="py-2 rounded-lg text-xs font-bold transition-all">
+                ✍️ Isi Manual
+            </button>
+            <button type="button" @click="mode = 'otomatis'"
+                    :class="mode === 'otomatis' ? 'bg-white shadow text-telkom-red' : 'text-slate-500'"
+                    class="py-2 rounded-lg text-xs font-bold transition-all">
+                🤖 Hitung Otomatis
+            </button>
+        </div>
+
+        <!-- Tombol analisis otomatis, cuma muncul kalau mode = otomatis -->
+        <div x-show="mode === 'otomatis'" x-cloak>
+            <button type="button" id="btnAnalisisOtomatis"
+                    data-url="{{ route('use-cases.analisis-otomatis', $useCase) }}"
+                    class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5">
+                <i data-lucide="sparkles" class="h-4 w-4"></i> Analisis & Isi Otomatis
+            </button>
+            <p class="text-[10px] text-slate-400 mt-2 leading-relaxed">
+                Sistem akan membaca deskripsi, latar belakang, dan tujuan use case untuk menyarankan skor. Kamu tetap bisa mengubahnya secara manual setelah itu.
+            </p>
+        </div>
+
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
             @foreach([
                 'dampak' => 'Dampak', 'kelayakan' => 'Kelayakan', 'ketersediaan_data' => 'Ketersediaan Data',
@@ -97,7 +131,7 @@
             ] as $field => $label)
             <div class="space-y-1">
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ $label }} (1-5)</label>
-                <select name="{{ $field }}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                <select name="{{ $field }}" id="field_{{ $field }}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
                     <option value="">-</option>
                     @for($i=1;$i<=5;$i++)
                         <option value="{{ $i }}" @selected(old($field, $penilaian->$field ?? '') == $i)>{{ $i }}</option>
@@ -125,6 +159,93 @@
                 </select>
             </div>
         </div>
+
+        @php($risiko = $useCase->risikoEtikaDetail)
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
+            <input type="hidden" name="risiko_etika_dikirim" value="1">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Risiko Etika</h3>
+
+            <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <input type="checkbox" name="menggunakan_data_pribadi" value="1" @checked(old('menggunakan_data_pribadi', $risiko?->menggunakan_data_pribadi))>
+                Menggunakan data pribadi
+            </label>
+
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-500">Jenis Data Sensitif</label>
+                <input type="text" name="jenis_data_sensitif" value="{{ old('jenis_data_sensitif', $risiko?->jenis_data_sensitif) }}"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+            </div>
+
+            @foreach([
+                'risiko_privasi' => 'Risiko Privasi',
+                'risiko_bias' => 'Risiko Bias',
+                'risiko_ketergantungan_ai' => 'Ketergantungan AI',
+                'risiko_kesalahan_output' => 'Kesalahan Output',
+            ] as $field => $label)
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-500">{{ $label }}</label>
+                <select name="{{ $field }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                    <option value="">-</option>
+                    @foreach(['Rendah', 'Sedang', 'Tinggi'] as $level)
+                        <option value="{{ $level }}" @selected(old($field, $risiko?->$field) === $level)>{{ $level }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @endforeach
+
+            <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <input type="checkbox" name="perlu_validasi_manusia" value="1" @checked(old('perlu_validasi_manusia', $risiko?->perlu_validasi_manusia))>
+                Memerlukan validasi manusia
+            </label>
+            <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <input type="checkbox" name="perlu_persetujuan_pengguna" value="1" @checked(old('perlu_persetujuan_pengguna', $risiko?->perlu_persetujuan_pengguna))>
+                Memerlukan persetujuan pengguna
+            </label>
+
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-500">Rekomendasi Mitigasi</label>
+                <textarea name="rekomendasi_mitigasi" rows="3"
+                          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">{{ old('rekomendasi_mitigasi', $risiko?->rekomendasi_mitigasi) }}</textarea>
+            </div>
+        </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('btnAnalisisOtomatis');
+        if (!btn) return;
+
+        btn.addEventListener('click', async function () {
+            const url = btn.getAttribute('data-url');
+            btn.disabled = true;
+            btn.innerText = 'Menganalisis...';
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                });
+                const data = await res.json();
+
+                Object.keys(data).forEach(function (field) {
+                    const select = document.getElementById('field_' + field);
+                    if (select) select.value = data[field];
+                });
+
+                btn.innerHTML = '<i data-lucide="check" class="h-4 w-4"></i> Skor Terisi Otomatis';
+                if (window.lucide) lucide.createIcons();
+            } catch (e) {
+                alert('Gagal menganalisis. Coba lagi.');
+                btn.innerText = 'Analisis & Isi Otomatis';
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    });
+    </script>
     @endisset
 </div>
