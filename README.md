@@ -66,8 +66,6 @@
 
 ## 📸 Screenshots
 
-> Replace the placeholders below with actual screenshots from your application.
-
 | Page | Preview |
 |---|---|
 | **Login** | `[screenshot-login.png]` |
@@ -246,11 +244,10 @@ After seeding, the following test accounts are available:
 
 | Role | Email | Password |
 |---|---|---|
-| **Admin** | `admin@telkomuniversity.ac.id` | *(set manually or via seeder)* |
+| **Admin** | `admin@admin.com` | `admin123` |
 | **User** | `jeffsatur@student.telkomuniversity.ac.id` | `password123` |
 | **User** | `leeteuk@student.telkomuniversity.ac.id` | `password123` |
 
-> ⚠️ Change all default passwords before deploying to production.
 
 ---
 
