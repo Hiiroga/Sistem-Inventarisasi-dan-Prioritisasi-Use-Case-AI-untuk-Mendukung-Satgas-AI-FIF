@@ -214,7 +214,35 @@
         </div>
     </div>
 
-    <!-- Toast notification -->
+
+    {{-- ─── Floating Bot Button ─── --}}
+    <a href="{{ route('bantuan') }}"
+       id="botButton"
+       title="Pusat Bantuan"
+       class="fixed bottom-5 left-5 z-50 group flex items-center gap-0 hover:gap-2.5 overflow-hidden
+              bg-telkom-red text-white rounded-full shadow-xl hover:shadow-2xl
+              transition-all duration-300 ease-in-out
+              px-3.5 py-3.5 hover:px-5 hover:py-3.5"
+       style="max-width: 3.5rem; hover:max-width: 12rem;"
+    >
+        {{-- Bot icon --}}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             class="h-5 w-5 shrink-0">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M12 2a3 3 0 0 1 3 3v6H9V5a3 3 0 0 1 3-3z"></path>
+            <line x1="8" y1="15" x2="8" y2="18"></line>
+            <line x1="16" y1="15" x2="16" y2="18"></line>
+            <circle cx="9" cy="14" r="0.5" fill="currentColor"></circle>
+            <circle cx="15" cy="14" r="0.5" fill="currentColor"></circle>
+        </svg>
+        {{-- Label muncul saat hover --}}
+        <span class="text-xs font-bold whitespace-nowrap max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-300 overflow-hidden">
+            Pusat Bantuan
+        </span>
+    </a>
+
+    {{-- Toast notification --}}
     @if(session('success'))
     <div id="toastNotif" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 max-w-sm border border-slate-800">
         <div class="h-2 w-2 rounded-full bg-green-400"></div>

@@ -16,6 +16,11 @@ Route::get('/masuk', [PortalLoginController::class, 'show'])->name('portal.login
 Route::post('/masuk', [PortalLoginController::class, 'login'])->name('portal.login.submit');
 Route::post('/keluar', [PortalLoginController::class, 'logout'])->name('portal.logout');
 
+// Halaman Bantuan / FAQ (dapat diakses semua user yang login)
+Route::middleware(['auth'])->get('/bantuan', function () {
+    return view('bantuan');
+})->name('bantuan');
+
 // Rute untuk User biasa (login wajib, guard web/default)
 Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
