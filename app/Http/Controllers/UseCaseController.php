@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -212,8 +213,23 @@ class UseCaseController extends Controller
         return 'UC'.str_pad((string) $number, 3, '0', STR_PAD_LEFT);
     }
 
-    public function export(): BinaryFileResponse
+    public function export(Request $request): BinaryFileResponse
     {
-        return Excel::download(new UseCaseExport, 'data-use-case-ai-'.now()->format('Y-m-d').'.xlsx');
+        $allowedColumns = [
+            'kode', 'nama_use_case', 'kategori', 'status', 'deskripsi',
+            'pengusul', 'teknologi_ai', 'skor_prioritas', 'level_prioritas',
+        ];
+
+        $validated = $request->validate([
+            'use_case_ids' => ['required', 'array', 'min:1'],
+            'use_case_ids.*' => ['integer', 'distinct', 'exists:use_cases,id'],
+            'columns' => ['required', 'array', 'min:1'],
+            'columns.*' => ['string', 'distinct', Rule::in($allowedColumns)],
+        ]);
+
+        return Excel::download(
+            new UseCaseExport($validated['use_case_ids'], $validated['columns']),
+            'data-use-case-ai-'.now()->format('Y-m-d').'.xlsx'
+        );
     }
 }
