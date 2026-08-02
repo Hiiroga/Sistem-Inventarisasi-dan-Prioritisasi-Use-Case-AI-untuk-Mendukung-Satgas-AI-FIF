@@ -108,6 +108,30 @@ class UseCaseWorkflowTest extends TestCase
             ->assertSee('Asisten Akademik');
     }
 
+    public function test_admin_can_export_selected_use_cases_and_columns(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $kategori = Kategori::create(['nama_kategori' => 'Akademik']);
+        $useCase = $this->createUseCase($kategori, $admin);
+
+        $this->actingAs($admin)
+            ->get(route('use-cases.export', [
+                'use_case_ids' => [$useCase->id],
+                'columns' => ['kode', 'nama_use_case', 'status'],
+            ]))
+            ->assertOk()
+            ->assertDownload('data-use-case-ai-'.now()->format('Y-m-d').'.xlsx');
+    }
+
+    public function test_export_requires_selected_use_cases_and_columns(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->get(route('use-cases.export'))
+            ->assertSessionHasErrors(['use_case_ids', 'columns']);
+    }
+
     public function test_status_change_is_recorded_with_actor(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
