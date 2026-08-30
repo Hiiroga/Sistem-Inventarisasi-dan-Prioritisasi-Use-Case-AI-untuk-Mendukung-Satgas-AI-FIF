@@ -2,7 +2,7 @@
 
 # Sistem Inventarisasi & Prioritisasi Use Case AI
 
-### Satgas AI — Fakultas Ilmu Informatika, Telkom University
+### Satgas AI, Fakultas Ilmu Informatika, Telkom University
 
 <br/>
 
@@ -23,17 +23,17 @@ Aplikasi web untuk menginventarisasi, menilai, dan memprioritaskan use case AI d
 
 ## Fitur Utama
 
-- **Manajemen Use Case** — CRUD lengkap untuk mengajukan dan mengelola proposal use case AI, dengan kode unik otomatis (`UC001`, `UC002`, ...)
-- **Penilaian Prioritas** — Penilaian berbasis skor dari 8 parameter berbobot, dengan kalkulasi otomatis level prioritas (Tinggi / Sedang / Rendah)
-- **Auto-Analysis Engine** — Sugesti skor awal berbasis analisis kata kunci dari nama, deskripsi, latar belakang, dan tujuan use case
-- **Penilaian Risiko Etika** — Profil risiko etika lengkap: privasi, bias, ketergantungan AI, dan risiko kesalahan output
-- **Riwayat Status** — Audit trail otomatis setiap perubahan status, lengkap dengan catatan dan timestamp
-- **Analytics Dashboard** — Grafik interaktif (bar & pie) distribusi kategori, status, dan level prioritas; top 5 use case prioritas tertinggi
-- **Ekspor Excel** — Unduh seluruh data use case beserta skor penilaian ke file `.xlsx` berformat rapi
-- **Role-Based Access** — Alur terpisah untuk Admin (Satgas AI) dan User (Pengusul)
-- **Notifikasi In-App** — Bell notifikasi untuk proposal masuk (Admin) dan use case yang sudah dinilai (User)
-- **SatBot** — Chatbot FAQ berbasis aturan di halaman Pusat Bantuan, dengan navigasi tombol topik dan saran tindak lanjut
-- **Passkey Support** — Autentikasi tanpa kata sandi via `@laravel/passkeys`
+- **Manajemen Use Case**: CRUD lengkap untuk mengajukan dan mengelola proposal, dengan kode unik otomatis (`UC001`, `UC002`, ...)
+- **Penilaian Prioritas**: Penilaian berbasis skor dari 8 parameter berbobot, dengan kalkulasi otomatis level prioritas (Tinggi / Sedang / Rendah)
+- **Auto-Analysis Engine**: Sugesti skor awal berbasis analisis kata kunci dari nama, deskripsi, latar belakang, dan tujuan use case
+- **Penilaian Risiko Etika**: Profil risiko etika lengkap meliputi privasi, bias, ketergantungan AI, dan risiko kesalahan output
+- **Riwayat Status**: Audit trail otomatis setiap perubahan status, lengkap dengan catatan dan timestamp
+- **Analytics Dashboard**: Grafik interaktif (bar & pie) distribusi kategori, status, dan level prioritas; top 5 use case prioritas tertinggi
+- **Ekspor Excel**: Unduh seluruh data use case beserta skor penilaian ke file `.xlsx` berformat rapi
+- **Role-Based Access**: Alur terpisah untuk Admin (Satgas AI) dan User (Pengusul)
+- **Notifikasi In-App**: Bell notifikasi untuk proposal masuk (Admin) dan use case yang sudah dinilai (User)
+- **SatBot**: Chatbot FAQ berbasis aturan di halaman Pusat Bantuan, dengan navigasi tombol topik dan saran tindak lanjut
+- **Passkey Support**: Autentikasi tanpa kata sandi via `@laravel/passkeys`
 
 ---
 
@@ -242,6 +242,6 @@ Proyek ini dilisensikan di bawah [MIT License](LICENSE).
 
 <div align="center">
 
-**Satgas AI FIF — Telkom University · 2026**
+**Satgas AI FIF · Telkom University · 2026**
 
 </div>
